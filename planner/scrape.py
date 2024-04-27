@@ -1,18 +1,17 @@
+import csv
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 from urllib import request
 from urllib.error import HTTPError
 
 from bs4 import BeautifulSoup
-
-from planner.almanac import Almanac
 
 
 def download_html(url):
     try:
         response = request.urlopen(url)
         return response.read()
-    except HTTPError as e:
+    except HTTPError:
         return None
 
 
@@ -78,32 +77,54 @@ def parse_rokuyo(data):
     return rokuyo
 
 
-def parse_national_holidays(year, data):
-    soup = BeautifulSoup(data, "html.parser")
+class NationalHolidayParser:
+    def parse(self, year, data):
+        pass
 
-    table = soup.find("table", {"class": "table--default"})
-    if not table:
-        return None
-    rows = table.findChildren("tr", recursive=False)
 
-    if not rows:
-        return None
+class NationalHolidayCaoParser(NationalHolidayParser):
+    def parse(self, year, data):
+        national_holidays = {}
+        for col1, col2 in csv.reader(data):
+            if col1 != "国民の祝日・休日月日":
+                date = datetime.strptime(col1, "%Y/%m/%d")
+                if date.year == year:
+                    ymd = date.strftime("%Y%m%d")
+                    national_holidays[ymd] = col2
+        return national_holidays
 
-    national_holidays = {}
-    for row in rows:
-        columns = row.findChildren("td", recursive=False)
-        name = columns[0].text
-        date = columns[1].text
-        match = re.search("([0-9]{1,})月([0-9]{1,})日", date)
-        if match.groups() and len(match.groups()) == 2:
-            month = match.group(1)
-            if len(month) == 1:
-                month = "0" + month
-            day = match.group(2)
-            if len(day) == 1:
-                day = "0" + day
-            month_day = "{}{}{}".format(year, month, day)
-            national_holidays[month_day] = name
-        else:
+
+class NationalHolidayNaojParser(NationalHolidayParser):
+    def parse(self, year, data):
+        soup = BeautifulSoup(data, "html.parser")
+
+        table = soup.find("table", {"class": "table--default"})
+        if not table:
             return None
-    return national_holidays
+        rows = table.findChildren("tr", recursive=False)
+
+        if not rows:
+            return None
+
+        national_holidays = {}
+        for row in rows:
+            columns = row.findChildren("td", recursive=False)
+            name = columns[0].text
+            date = columns[1].text
+            match = re.search("([0-9]{1,})月([0-9]{1,})日", date)
+            if match.groups() and len(match.groups()) == 2:
+                month = match.group(1)
+                if len(month) == 1:
+                    month = "0" + month
+                day = match.group(2)
+                if len(day) == 1:
+                    day = "0" + day
+                ymd = "{}{}{}".format(year, month, day)
+                national_holidays[ymd] = name
+            else:
+                return None
+        return national_holidays
+
+
+def parse_national_holidays(parser, year, data):
+    return parser.parse(year, data)

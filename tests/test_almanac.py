@@ -1,6 +1,5 @@
 import pytest
 
-import planner
 from planner.almanac import Almanac
 
 
@@ -19,7 +18,4 @@ from planner.almanac import Almanac
 )
 def test_add_holidays(provided_input, expected_output):
     Almanac.add_holidays(provided_input)
-    assert len(provided_input.keys()) == len(expected_output.keys())
-    assert all(
-        expected_output[key] == value for key, value in provided_input.items()
-    )
+    assert provided_input == expected_output

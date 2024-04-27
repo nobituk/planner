@@ -44,7 +44,11 @@ class Almanac:
             [
                 (day_of_week["name_en_long"], day_of_week)
                 for day_of_week in yaml.safe_load(
-                    open(files(planner.data.conf).joinpath("day_of_week.yml"))
+                    open(
+                        files(planner.data.conf).joinpath("day_of_week.yml"),
+                        "r",
+                        encoding="utf-8",
+                    )
                 )
             ],
         )
@@ -52,7 +56,7 @@ class Almanac:
 
     @classmethod
     def load_rokuyo(cls, file):
-        with open(file, mode="r") as f:
+        with open(file, mode="r", encoding="utf-8") as f:
             rokuyo = {
                 date: label for date, label in [line.split() for line in f]
             }
@@ -60,7 +64,7 @@ class Almanac:
 
     @classmethod
     def load_national_holidays(cls, file):
-        with open(file, mode="r") as f:
+        with open(file, mode="r", encoding="utf-8") as f:
             holidays = {
                 date: label for date, label in [line.split() for line in f]
             }

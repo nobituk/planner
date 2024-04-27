@@ -1,11 +1,14 @@
 from importlib.resources import files
 
 import pytest
-from bs4 import BeautifulSoup
 
-import planner
 import tests
-from planner.scrape import parse_national_holidays, parse_rokuyo
+from planner.scrape import (
+    NationalHolidayCaoParser,
+    NationalHolidayNaojParser,
+    parse_national_holidays,
+    parse_rokuyo,
+)
 
 
 @pytest.mark.parametrize(
@@ -27,10 +30,7 @@ from planner.scrape import parse_national_holidays, parse_rokuyo
 )
 def test_parse_rokuyo(provided_input, expected_output):
     actual_output = parse_rokuyo(provided_input)
-    assert len(actual_output.keys()) == len(expected_output.keys())
-    assert all(
-        actual_output[key] == value for key, value in expected_output.items()
-    )
+    assert actual_output == expected_output
 
 
 @pytest.mark.parametrize(
@@ -47,21 +47,17 @@ def test_parse_rokuyo(provided_input, expected_output):
     ],
 )
 def test_parse_rokuyo_html(provided_input_file, expected_output_file):
-    with open(provided_input_file, "r") as f:
+    with open(provided_input_file, "r", encoding="utf-8") as f:
         provided_input = f.read()
 
     expected_output = {}
-    with open(expected_output_file, "r") as f:
+    with open(expected_output_file, "r", encoding="utf-8") as f:
         for line in f:
             day, name = line.split()
             expected_output[day] = name
 
     actual_output = parse_rokuyo(provided_input)
-    assert len(actual_output.keys()) == len(set(actual_output.keys()))
-    assert len(actual_output.keys()) == len(expected_output.keys())
-    assert set(actual_output.keys()) == set(expected_output.keys())
-    for day, name in actual_output.items():
-        assert expected_output[day] == name
+    assert actual_output == expected_output
 
 
 @pytest.mark.parametrize(
@@ -87,11 +83,9 @@ def test_parse_rokuyo_html(provided_input_file, expected_output_file):
 def test_parse_national_holidays(provided_input, expected_output):
     year = provided_input[0]
     data = provided_input[1]
-    actual_output = parse_national_holidays(year, data)
-    assert len(actual_output.keys()) == len(expected_output.keys())
-    assert all(
-        actual_output[key] == value for key, value in expected_output.items()
-    )
+    parser = NationalHolidayNaojParser()
+    actual_output = parse_national_holidays(parser, year, data)
+    assert actual_output == expected_output
 
 
 @pytest.mark.parametrize(
@@ -144,11 +138,52 @@ def test_parse_national_holidays(provided_input, expected_output):
 def test_parse_national_holidays_html(provided_input, expected_output):
     year = provided_input[0]
     file = provided_input[1]
-    with open(file, "r") as f:
+    with open(file, "r", encoding="utf-8") as f:
         data = f.read()
-    actual_output = parse_national_holidays(year, data)
-    assert len(actual_output.keys()) == len(set(actual_output.keys()))
-    assert len(actual_output.keys()) == len(expected_output.keys())
-    assert set(actual_output.keys()) == set(expected_output.keys())
-    for day, name in actual_output.items():
-        assert expected_output[day] == name
+    parser = NationalHolidayNaojParser()
+    actual_output = parse_national_holidays(parser, year, data)
+    assert actual_output == expected_output
+
+
+@pytest.mark.parametrize(
+    "provided_input, expected_output",
+    [
+        (
+            (2024, files(tests).joinpath("data/syukujitsu.csv")),
+            {
+                "20240101": "元日",
+                "20240108": "成人の日",
+                "20240211": "建国記念の日",
+                "20240212": "休日",
+                "20240223": "天皇誕生日",
+                "20240320": "春分の日",
+                "20240429": "昭和の日",
+                "20240503": "憲法記念日",
+                "20240504": "みどりの日",
+                "20240505": "こどもの日",
+                "20240506": "休日",
+                "20240715": "海の日",
+                "20240811": "山の日",
+                "20240812": "休日",
+                "20240916": "敬老の日",
+                "20240922": "秋分の日",
+                "20240923": "休日",
+                "20241014": "スポーツの日",
+                "20241103": "文化の日",
+                "20241104": "休日",
+                "20241123": "勤労感謝の日",
+            },
+        ),
+    ],
+)
+def test_parse_national_holidays_csv(provided_input, expected_output):
+    year = provided_input[0]
+    file = provided_input[1]
+    data = []
+    with open(file, "r", encoding="cp932") as f:
+        for line in f.readlines():
+            print(line)
+            data.append(line)
+    parser = NationalHolidayCaoParser()
+    actual_output = parse_national_holidays(parser, year, data)
+    assert actual_output == expected_output

@@ -2,10 +2,9 @@ import math
 from datetime import date, timedelta
 from importlib.resources import files
 
-import reportlab.rl_config
 from reportlab.lib.colors import black, blue, red
 from reportlab.lib.pagesizes import A4, landscape
-from reportlab.lib.units import cm, mm
+from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
