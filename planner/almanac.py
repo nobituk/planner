@@ -71,7 +71,7 @@ class Almanac:
     def add_holidays(cls, national_holidays):
         holidays = {}
 
-        # 国民の祝日に燗する法律第3条2項
+        # 国民の祝日に関する法律第3条2項
         days = list(national_holidays)
         for day in days:
             day_of_week = Almanac.day_of_week(day)
@@ -82,7 +82,7 @@ class Almanac:
                 if next_day not in days:
                     holidays[next_day] = "振替休日"
 
-        # 国民の祝日に燗する法律第3条3項
+        # 国民の祝日に関する法律第3条3項
         for index in range(0, len(days) - 1):
             day1 = datetime.strptime(days[index], "%Y%m%d")
             day3 = datetime.strptime(days[index + 1], "%Y%m%d")
