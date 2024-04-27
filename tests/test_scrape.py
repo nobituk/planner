@@ -182,7 +182,6 @@ def test_parse_national_holidays_csv(provided_input, expected_output):
     data = []
     with open(file, "r", encoding="cp932") as f:
         for line in f.readlines():
-            print(line)
             data.append(line)
     parser = NationalHolidayCaoParser()
     actual_output = parse_national_holidays(parser, year, data)
