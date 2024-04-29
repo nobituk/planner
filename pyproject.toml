@@ -2,8 +2,15 @@
 name = "planner"
 version = "0.1.0"
 description = "手帳"
+license = "MIT"
 authors = ["nobituk <nobituk@ab.auone-net.jp>"]
 readme = "README.md"
+repository = "https://github.com/nobituk/planner"
+classifiers = [
+	"Development Status :: 5 - Production/Stable",
+	"Environment :: Console",
+	"License :: OSI Approved :: MIT License"
+]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -14,7 +21,7 @@ isort = "^5.13.2"
 
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.11.0"
+black = "^24.4.2"
 pytest = "^7.4.3"
 coverage = "^7.3.2"
 grip = "^4.6.2"
